@@ -1,16 +1,46 @@
 ---
+import { db, Meals } from "astro:db";
 
+const meals = await db.select().from(Meals);
+
+if (Astro.request.method === "POST") {
+  // parse form data
+  const formData = await Astro.request.formData();
+  const content = formData.get("name");
+  if (typeof name === "string") {
+    // insert form data into the Comment table
+    await db.insert(Meals).values({ content });
+  }
+}
+
+// render the new list of comments on each request
+const comments = await db.select().from(Meals);
 ---
 
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+    <title>Astro</title>
+  </head>
+  <body>
+    <h1>Astro</h1>
+    {
+      meals.map(({ name }) => (
+        <article>
+          <p>{name}</p>
+        </article>
+      ))
+    }
+    <form method="POST" style="display: grid">
+      <label for="meal_name">Meal name</label>
+      <input id="meal_name" name="name" />
+
+      <button type="submit">Submit</button>
+    </form>
+
+    <!--render `comments`-->
+  </body>
 </html>
