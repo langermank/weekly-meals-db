@@ -1,50 +1,79 @@
 ---
-import { db, Foods } from "astro:db";
-// export const prerender = true;
-
-if (Astro.request.method === "POST") {
-  // parse form data
-  const data = await Astro.request.formData();
-  const foodName = data.get("name");
-  try {
-    if (typeof foodName === "string") {
-      // insert form data into the Comment table
-      await db
-        .insert(Foods)
-        .values({ name: foodName, label_image: "path/to/image.jpg" });
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
-  }
-}
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+import { db, Weeks, Days, Meals, Foods, MealFoods, MealTypes } from "astro:db";
 
 const foods = await db.select().from(Foods);
+const mealFoods = await db.select().from(MealFoods);
+const meals = await db.select().from(Meals);
+const days = await db.select().from(Days);
+const weeks = await db.select().from(Weeks);
+const mealTypes = await db.select().from(MealTypes);
 ---
 
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="generator" content={Astro.generator} />
-    <title>Astro</title>
-  </head>
-  <body>
-    <h1>Astro</h1>
-    {
-      foods.map(({ name }) => (
-        <article>
-          <p>{name}</p>
-        </article>
-      ))
-    }
-    <form method="POST" style="display: grid">
-      <label for="food_name">Food name</label>
-      <input id="food_name" name="name" />
+<DefaultLayout title="Home Page">
+  {
+    days.map(({ day_id, date }) => {
+      const options = {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      };
+      const dayOfWeek = new Date(date);
+      const formattedDayOfWeek = new Date(
+        dayOfWeek.getUTCFullYear(),
+        dayOfWeek.getUTCMonth(),
+        dayOfWeek.getUTCDate()
+      ).toLocaleDateString("en-US", options);
 
-      <button type="submit">Submit</button>
-    </form>
-  </body>
-</html>
+      // Adjusted to match meals based on day_id
+      const dailyMeals = meals.filter((meal) => meal.day_id === day_id);
+
+      return (
+        <article>
+          <h2>{formattedDayOfWeek}</h2>
+          {dailyMeals.map(({ meal_id, name, meal_type_id }) => {
+            // Find the meal type based on meal_type_id
+            const mealType = mealTypes.find(
+              (type) => type.meal_type_id === meal_type_id
+            );
+            // Find the meal foods based on meal_id
+            const mealFoodsForMeal = mealFoods.filter(
+              (mealFood) => mealFood.meal_id === meal_id
+            );
+
+            return (
+              <div>
+                {mealType && <h3>{mealType.type_name}</h3>}
+                <p>
+                  <strong>{name}</strong>
+                </p>
+                {mealFoodsForMeal.map(({ food_id, quantity_taran }) => {
+                  const food = foods.find((f) => f.food_id === food_id);
+                  return (
+                    <div>
+                      {food && <p style={{ color: "deeppink" }}>{food.name}</p>}
+                      <p style={{ color: "blue" }}>{quantity_taran}</p>
+                      <a href={food && food.macrofactor_url}>
+                        MacroFactor link
+                      </a>
+                    </div>
+                  );
+                })}
+              </div>
+            );
+          })}
+        </article>
+      );
+    })
+  }
+
+  <!-- {
+    foods.map(({ name, macrofactor_url }) => (
+      <article>
+        <p>{name}</p>
+        <a href={macrofactor_url}>MacroFactor link</a>
+      </article>
+    ))
+  } -->
+</DefaultLayout>

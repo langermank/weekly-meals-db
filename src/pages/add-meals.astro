@@ -1,0 +1,70 @@
+---
+import DefaultLayout from "../layouts/DefaultLayout.astro";
+
+import { db, Foods } from "astro:db";
+
+if (Astro.request.method === "POST") {
+  // parse form data
+  const data = await Astro.request.formData();
+  const foodName = data.get("name");
+  const labelImage = data.get("label_image");
+  try {
+    if (typeof foodName === "string" || typeof labelImage === "string") {
+      // insert form data into the Comment table
+      await db
+        .insert(Foods)
+        .values({ name: foodName, macrofactor_url: labelImage });
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
+  }
+}
+
+const foods = await db.select().from(Foods);
+---
+
+<DefaultLayout title="Add new items">
+  <h2>Add new food item</h2>
+  <form method="POST" style="display: grid">
+    <label for="food_name">Food name</label>
+    <input id="food_name" name="name" />
+
+    <button type="submit">Submit</button>
+  </form>
+
+  <h2>Add new meal</h2>
+  <form method="POST" style="display: grid">
+    <label for="label_image">Date</label>
+    <input id="label_image" name="label_image" />
+
+    <label for="label_image">Meal type</label>
+    <select id="label_image" name="label_image"></select>
+
+    <label for="label_image">Meal name</label>
+    <input id="label_image" name="label_image" />
+
+    <label for="label_image">Select food</label>
+    <select id="label_image" name="label_image"></select>
+
+    <label for="label_image">Katie Quantity</label>
+    <input id="label_image" name="label_image" />
+
+    <label for="label_image">Taran Quantity</label>
+    <input id="label_image" name="label_image" />
+
+    <button>Add another food item</button>
+
+    <label for="label_image">Select food</label>
+    <select id="label_image" name="label_image"></select>
+
+    <label for="label_image">Katie Quantity</label>
+    <input id="label_image" name="label_image" />
+
+    <label for="label_image">Taran Quantity</label>
+    <input id="label_image" name="label_image" />
+
+    <button type="submit">Submit</button>
+  </form>
+</DefaultLayout>

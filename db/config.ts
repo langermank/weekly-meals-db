@@ -16,19 +16,28 @@ export const Days = defineTable({
 	}
 });
 
-export const Meals = defineTable({
-	columns: {
-		meal_id: column.number({ primaryKey: true }),
-		day_id: column.number({ references: () => Days.columns.day_id }),
-		name: column.text(),
-	}
+export const MealTypes = defineTable({
+  columns: {
+    meal_type_id: column.number({ primaryKey: true }),
+    type_name: column.text(), // "Lunch" or "Dinner"
+  }
 });
 
 export const Foods = defineTable({
 	columns: {
 		food_id: column.number({ primaryKey: true }),
   	name: column.text(),
-  	label_image: column.text(),
+		macrofactor_url: column.text({ optional: true }),
+		label_image: column.text({ deprecated: true }),
+	}
+});
+
+export const Meals = defineTable({
+	columns: {
+		meal_id: column.number({ primaryKey: true }),
+		name: column.text(),
+		meal_type_id: column.number({ references: () => MealTypes.columns.meal_type_id, default: 1}),
+		day_id: column.number({ references: () => Days.columns.day_id }),
 	}
 });
 
@@ -37,11 +46,14 @@ export const MealFoods = defineTable({
 		meal_food_id: column.number({ primaryKey: true }),
 		meal_id: column.number({ references: () => Meals.columns.meal_id }),
 		food_id: column.number({ references: () => Foods.columns.food_id }),
-		quantity_user1: column.number(),
-		quantity_user2: column.number(),
+		quantity_katie: column.number({ optional: true }),
+		quantity_taran: column.number({ optional: true }),
+		quantity_user1: column.number({ deprecated: true }),
+		quantity_user2: column.number({ deprecated: true })
 	}
 });
 
+
 export default defineDb({
-  tables: { Weeks, Days, Meals, Foods, MealFoods },
+  tables: { Weeks, Days, Meals, Foods, MealFoods, MealTypes },
 })
