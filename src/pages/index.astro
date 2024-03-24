@@ -4,18 +4,17 @@ export const prerender = true;
 
 const foods = await db.select().from(Foods);
 
-// if (Astro.request.method === "POST") {
-//   // parse form data
-//   const formData = await Astro.request.formData();
-//   const content = formData.get("name");
-//   if (typeof name === "string") {
-//     // insert form data into the Comment table
-//     await db.insert(Meals).values({ content });
-//   }
-// }
-
-// render the new list of comments on each request
-const comments = await db.select().from(Foods);
+if (Astro.request.method === "POST") {
+  // parse form data
+  const formData = await Astro.request.formData();
+  const foodName = formData.get("name");
+  if (typeof foodName === "string") {
+    // insert form data into the Comment table
+    await db
+      .insert(Foods)
+      .values({ name: foodName, label_image: "path/to/image.jpg" });
+  }
+}
 ---
 
 <html lang="en">
@@ -35,11 +34,11 @@ const comments = await db.select().from(Foods);
         </article>
       ))
     }
-    <!-- <form method="POST" style="display: grid">
-      <label for="meal_name">Meal name</label>
-      <input id="meal_name" name="name" />
+    <form method="POST" style="display: grid">
+      <label for="food_name">Food name</label>
+      <input id="food_name" name="name" />
 
       <button type="submit">Submit</button>
-    </form> -->
+    </form>
   </body>
 </html>
