@@ -1,7 +1,7 @@
 ---
-import { db, Meals } from "astro:db";
+import { db, Foods } from "astro:db";
 
-const meals = await db.select().from(Meals);
+const foods = await db.select().from(Foods);
 
 // if (Astro.request.method === "POST") {
 //   // parse form data
@@ -14,7 +14,7 @@ const meals = await db.select().from(Meals);
 // }
 
 // render the new list of comments on each request
-const comments = await db.select().from(Meals);
+const comments = await db.select().from(Foods);
 ---
 
 <html lang="en">
@@ -28,7 +28,7 @@ const comments = await db.select().from(Meals);
   <body>
     <h1>Astro</h1>
     {
-      meals.map(({ name }) => (
+      foods.map(({ name }) => (
         <article>
           <p>{name}</p>
         </article>
