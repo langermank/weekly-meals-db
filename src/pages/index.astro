@@ -15,7 +15,6 @@ const mealTypes = await db.select().from(MealTypes);
     days.map(({ day_id, date }) => {
       const options = {
         weekday: "long",
-        year: "numeric",
         month: "long",
         day: "numeric",
       };
@@ -30,50 +29,44 @@ const mealTypes = await db.select().from(MealTypes);
       const dailyMeals = meals.filter((meal) => meal.day_id === day_id);
 
       return (
-        <article>
+        <section class="day">
           <h2>{formattedDayOfWeek}</h2>
-          {dailyMeals.map(({ meal_id, name, meal_type_id }) => {
-            // Find the meal type based on meal_type_id
-            const mealType = mealTypes.find(
-              (type) => type.meal_type_id === meal_type_id
-            );
-            // Find the meal foods based on meal_id
-            const mealFoodsForMeal = mealFoods.filter(
-              (mealFood) => mealFood.meal_id === meal_id
-            );
+          <div class="meal-wrap">
+            {dailyMeals.map(({ meal_id, name, meal_type_id }) => {
+              // Find the meal type based on meal_type_id
+              const mealType = mealTypes.find(
+                (type) => type.meal_type_id === meal_type_id
+              );
+              // Find the meal foods based on meal_id
+              const mealFoodsForMeal = mealFoods.filter(
+                (mealFood) => mealFood.meal_id === meal_id
+              );
 
-            return (
-              <div>
-                {mealType && <h3>{mealType.type_name}</h3>}
-                <p>
-                  <strong>{name}</strong>
-                </p>
-                {mealFoodsForMeal.map(({ food_id, quantity_taran }) => {
-                  const food = foods.find((f) => f.food_id === food_id);
-                  return (
-                    <div>
-                      {food && <p style={{ color: "deeppink" }}>{food.name}</p>}
-                      <p style={{ color: "blue" }}>{quantity_taran}</p>
-                      <a href={food && food.macrofactor_url}>
-                        MacroFactor link
-                      </a>
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
-        </article>
+              return (
+                <div>
+                  {mealType && <h3>{mealType.type_name}</h3>}
+                  <hr />
+                  <h4>{name}</h4>
+                  <div class="food-list">
+                    {mealFoodsForMeal.map(({ food_id, quantity_taran }) => {
+                      const food = foods.find((f) => f.food_id === food_id);
+                      return (
+                        <span class="food">
+                          {food && <p>{food.name}</p>}
+                          <p>{quantity_taran}</p>
+                          <a href={food && food.macrofactor_url}>
+                            MacroFactor link
+                          </a>
+                        </span>
+                      );
+                    })}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
       );
     })
   }
-
-  <!-- {
-    foods.map(({ name, macrofactor_url }) => (
-      <article>
-        <p>{name}</p>
-        <a href={macrofactor_url}>MacroFactor link</a>
-      </article>
-    ))
-  } -->
 </DefaultLayout>

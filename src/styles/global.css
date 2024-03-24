@@ -1,0 +1,113 @@
+/* the props */
+@import "https://unpkg.com/open-props";
+
+/* optional imports that use the props */
+@import "https://unpkg.com/open-props/normalize.min.css";
+@import "https://unpkg.com/open-props/buttons.min.css";
+
+/* just dark or light themes */
+@import "https://unpkg.com/open-props/normalize.dark.min.css";
+@import "https://unpkg.com/open-props/buttons.dark.min.css";
+@import "https://unpkg.com/open-props/normalize.light.min.css";
+@import "https://unpkg.com/open-props/buttons.light.min.css";
+
+/* overrides */
+:where(h1) {
+  font-size: var(--font-size-6);
+  margin-block-end: var(--size-3);
+}
+
+:where(h2) {
+  font-size: var(--font-size-5);
+}
+
+:where(h3) {
+    font-size: var(--font-size-4);
+}
+
+:where(h4) {
+    font-size: var(--font-size-3);
+}
+
+:where(hr) {
+  background-color: var(--surface-4);
+  height: var(--border-size-2);
+  margin-block-end: var(--size-3);
+  margin-block-start: var(--size-1);
+}
+
+:where(a) {
+  margin-block: unset;
+  margin-inline: unset;
+  padding-block: unset;
+  padding-inline: unset;
+}
+
+body {
+  display: grid;
+  /* place-content: center; */
+  padding-inline: 1rem;
+  background-color: var(--surface-1);
+  color: var(--text-1);
+}
+
+main {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+}
+
+.food {
+  display: grid;
+  grid-auto-flow: column;
+  justify-content: start;
+  font-size: var(--font-size-2);
+}
+
+.food > * {
+  position: relative;
+}
+
+.food > :not(:last-child)::after {
+  content: "";
+  display: inline-block;
+  height: 0.8em;
+  margin: 0px 0.5em;
+  border-right-width: 0.1em;
+  border-right-style: solid;
+  border-color: var(--fgColor-muted, var(--color-fg-muted, #656d76));
+  transform: rotate(15deg) translateY(0.0625em);
+}
+
+.day {
+  box-shadow: var(--shadow-2);
+  background: var(--surface-1);
+  padding: var(--size-4);
+  border-radius: var(--radius-3);
+  border: solid 1px var(--stone-3);
+  display: grid;
+  gap: 1.5rem;
+}
+
+.meal-wrap {
+  display: grid;
+  gap: 1rem;
+}
+
+.food-list {
+  display: grid;
+  gap: .25rem;
+  color: var(--stone-7);
+}
+
+.meal-wrap h4 {
+  margin-block-end: var(--size-2);
+}
+
+nav {
+  display: grid;
+  gap: 1rem;
+  grid-auto-flow: column;
+  justify-content: center;
+  margin-block: var(--size-3);
+}
