@@ -8,7 +8,7 @@ import node from "@astrojs/node";
 export default defineConfig({
   integrations: [db()],
   output: "hybrid",
-  adapter: node({
-    mode: "standalone"
-  })
+  adapter: netlify({
+    edgeMiddleware: true
+  }),
 });
