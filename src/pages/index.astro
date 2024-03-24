@@ -1,20 +1,26 @@
 ---
 import { db, Foods } from "astro:db";
-export const prerender = true;
-
-const foods = await db.select().from(Foods);
+// export const prerender = true;
 
 if (Astro.request.method === "POST") {
   // parse form data
-  const formData = await Astro.request.formData();
-  const foodName = formData.get("name");
-  if (typeof foodName === "string") {
-    // insert form data into the Comment table
-    await db
-      .insert(Foods)
-      .values({ name: foodName, label_image: "path/to/image.jpg" });
+  const data = await Astro.request.formData();
+  const foodName = data.get("name");
+  try {
+    if (typeof foodName === "string") {
+      // insert form data into the Comment table
+      await db
+        .insert(Foods)
+        .values({ name: foodName, label_image: "path/to/image.jpg" });
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error(error.message);
+    }
   }
 }
+
+const foods = await db.select().from(Foods);
 ---
 
 <html lang="en">
