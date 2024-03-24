@@ -28,7 +28,6 @@ export const Foods = defineTable({
 		food_id: column.number({ primaryKey: true }),
   	name: column.text(),
 		macrofactor_url: column.text({ optional: true }),
-		label_image: column.text({ deprecated: true }),
 	}
 });
 
@@ -48,8 +47,6 @@ export const MealFoods = defineTable({
 		food_id: column.number({ references: () => Foods.columns.food_id }),
 		quantity_katie: column.number({ optional: true }),
 		quantity_taran: column.number({ optional: true }),
-		quantity_user1: column.number({ deprecated: true }),
-		quantity_user2: column.number({ deprecated: true })
 	}
 });
 
