@@ -1,5 +1,6 @@
 ---
 import { db, Foods } from "astro:db";
+export const prerender = true;
 
 const foods = await db.select().from(Foods);
 
