@@ -7,7 +7,7 @@ import node from "@astrojs/node";
 // https://astro.build/config
 export default defineConfig({
   integrations: [db()],
-  output: "hybrid",
+  output: "server",
   adapter: netlify({
     edgeMiddleware: true
   }),
