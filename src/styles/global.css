@@ -45,7 +45,7 @@
 
 body {
   display: grid;
-  /* place-content: center; */
+  place-content: center;
   padding-inline: 1rem;
   background-color: var(--surface-1);
   color: var(--text-1);
@@ -54,7 +54,7 @@ body {
 main {
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+  /* grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); */
 }
 
 .food {
