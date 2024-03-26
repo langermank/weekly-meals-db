@@ -1,72 +1,75 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { db, Weeks, Days, Meals, Foods, MealFoods, MealTypes } from "astro:db";
+import { inArray } from "astro:db";
+import { db, Weeks, Days, Meals } from "astro:db";
+import { gt, lt, and, eq } from "drizzle-orm";
 
-const foods = await db.select().from(Foods);
-const mealFoods = await db.select().from(MealFoods);
-const meals = await db.select().from(Meals);
-const days = await db.select().from(Days);
-const weeks = await db.select().from(Weeks);
-const mealTypes = await db.select().from(MealTypes);
+const currentDate = new Date();
+const weeks = await db
+  .select()
+  .from(Weeks)
+  .where(
+    and(lt(Weeks.start_date, currentDate), gt(Weeks.end_date, currentDate))
+  );
+let hasData = weeks.length > 0;
+let days: Array<any> = [];
+let meals: Array<any> = [];
+if (hasData) {
+  days = await db.select().from(Days).where(eq(Days.week_id, weeks[0].week_id));
+  hasData = days.length > 0;
+}
+if (hasData) {
+  const dayIds = days.map((day) => day.day_id);
+  meals = await db.select().from(Meals).where(inArray(Meals.day_id, dayIds));
+}
 ---
 
 <DefaultLayout title="Home Page">
   {
-    days.map(({ day_id, date }) => {
-      const options = {
-        weekday: "long",
-        month: "long",
-        day: "numeric",
-      };
-      const dayOfWeek = new Date(date);
-      const formattedDayOfWeek = new Date(
-        dayOfWeek.getUTCFullYear(),
-        dayOfWeek.getUTCMonth(),
-        dayOfWeek.getUTCDate()
-      ).toLocaleDateString("en-US", options);
+    !hasData ? (
+      <p>No food this week LOLSORRY</p>
+    ) : (
+      days.map(({ day_id, date }) => {
+        const options = {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        } as any;
+        const dayOfWeek = new Date(date);
+        const formattedDayOfWeek = new Date(
+          dayOfWeek.getUTCFullYear(),
+          dayOfWeek.getUTCMonth(),
+          dayOfWeek.getUTCDate()
+        ).toLocaleDateString("en-US", options);
 
-      // Adjusted to match meals based on day_id
-      const dailyMeals = meals.filter((meal) => meal.day_id === day_id);
+        // Adjusted to match meals based on day_id
+        const dailyMeals = meals.filter((meal) => meal.day_id === day_id);
 
-      return (
-        <section class="day">
-          <h2>{formattedDayOfWeek}</h2>
-          <div class="meal-wrap">
-            {dailyMeals.map(({ meal_id, name, meal_type_id }) => {
-              // Find the meal type based on meal_type_id
-              const mealType = mealTypes.find(
-                (type) => type.meal_type_id === meal_type_id
-              );
-              // Find the meal foods based on meal_id
-              const mealFoodsForMeal = mealFoods.filter(
-                (mealFood) => mealFood.meal_id === meal_id
-              );
-
-              return (
-                <div>
-                  {mealType && <h3>{mealType.type_name}</h3>}
-                  <hr />
-                  <h4>{name}</h4>
-                  <div class="food-list">
-                    {mealFoodsForMeal.map(({ food_id, quantity_taran }) => {
-                      const food = foods.find((f) => f.food_id === food_id);
-                      return (
-                        <span class="food">
-                          {food && <p>{food.name}</p>}
-                          <p>{quantity_taran}</p>
-                          <a href={food && food.macrofactor_url}>
-                            MacroFactor link
-                          </a>
-                        </span>
-                      );
-                    })}
+        return (
+          <section class="day">
+            <h2>{formattedDayOfWeek}</h2>
+            <div class="meal-wrap">
+              {dailyMeals.map(({ name, meal_type, notes, macrofactor_url }) => {
+                return (
+                  <div>
+                    <h3>{meal_type}</h3>
+                    <hr />
+                    <h4>{name}</h4>
+                    <div class="food-list">
+                      <span class="food">
+                        {macrofactor_url && (
+                          <a href={macrofactor_url}>MacroFactor link</a>
+                        )}
+                      </span>
+                      {notes && <p>{notes}</p>}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      );
-    })
+                );
+              })}
+            </div>
+          </section>
+        );
+      })
+    )
   }
 </DefaultLayout>

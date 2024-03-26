@@ -3,6 +3,8 @@ import DefaultLayout from "../layouts/DefaultLayout.astro";
 
 import { db, Foods } from "astro:db";
 
+//
+
 if (Astro.request.method === "POST") {
   // parse form data
   const data = await Astro.request.formData();
