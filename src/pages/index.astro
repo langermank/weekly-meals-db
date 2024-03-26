@@ -1,27 +1,19 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
 import { inArray } from "astro:db";
-import { db, Weeks, Days, Meals } from "astro:db";
-import { gt, lt, and, eq } from "drizzle-orm";
+import { db, Meals } from "astro:db";
+import { gte, lt, and, eq } from "drizzle-orm";
 
 const currentDate = new Date();
-const weeks = await db
-  .select()
-  .from(Weeks)
-  .where(
-    and(lt(Weeks.start_date, currentDate), gt(Weeks.end_date, currentDate))
-  );
-let hasData = weeks.length > 0;
-let days: Array<any> = [];
-let meals: Array<any> = [];
-if (hasData) {
-  days = await db.select().from(Days).where(eq(Days.week_id, weeks[0].week_id));
-  hasData = days.length > 0;
-}
-if (hasData) {
-  const dayIds = days.map((day) => day.day_id);
-  meals = await db.select().from(Meals).where(inArray(Meals.day_id, dayIds));
-}
+const startOfCurrentWeek = new Date('2024-03-25')
+const endOfCurrentWeek = new Date('2024-03-31')
+
+const meals = await db.select().from(Meals).where(and(
+  gte(Meals.day, startOfCurrentWeek),
+  lt(Meals.day, endOfCurrentWeek)
+));
+
+const hasData = meals.length > 0;
 ---
 
 <DefaultLayout title="Home Page">
@@ -29,43 +21,35 @@ if (hasData) {
     !hasData ? (
       <p>No food this week LOLSORRY</p>
     ) : (
-      days.map(({ day_id, date }) => {
+      meals.map(({ name, meal_type, notes, macrofactor_url, day }) => {
         const options = {
           weekday: "long",
           month: "long",
           day: "numeric",
         } as any;
-        const dayOfWeek = new Date(date);
+        const dayOfWeek = new Date(day);
         const formattedDayOfWeek = new Date(
           dayOfWeek.getUTCFullYear(),
           dayOfWeek.getUTCMonth(),
           dayOfWeek.getUTCDate()
         ).toLocaleDateString("en-US", options);
-
-        // Adjusted to match meals based on day_id
-        const dailyMeals = meals.filter((meal) => meal.day_id === day_id);
-
         return (
           <section class="day">
             <h2>{formattedDayOfWeek}</h2>
             <div class="meal-wrap">
-              {dailyMeals.map(({ name, meal_type, notes, macrofactor_url }) => {
-                return (
-                  <div>
-                    <h3>{meal_type}</h3>
-                    <hr />
-                    <h4>{name}</h4>
-                    <div class="food-list">
-                      <span class="food">
-                        {macrofactor_url && (
-                          <a href={macrofactor_url}>MacroFactor link</a>
-                        )}
-                      </span>
-                      {notes && <p>{notes}</p>}
-                    </div>
+                <div>
+                  <h3>{meal_type}</h3>
+                  <hr />
+                  <h4>{name}</h4>
+                  <div class="food-list">
+                    <span class="food">
+                      {macrofactor_url && (
+                        <a href={macrofactor_url}>MacroFactor link</a>
+                      )}
+                    </span>
+                    {notes && <p>{notes}</p>}
                   </div>
-                );
-              })}
+                </div>
             </div>
           </section>
         );
