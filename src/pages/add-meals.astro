@@ -1,30 +1,30 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
 
-import { db, Foods } from "astro:db";
+import { db } from "astro:db";
 
 //
 
-if (Astro.request.method === "POST") {
-  // parse form data
-  const data = await Astro.request.formData();
-  const foodName = data.get("name");
-  const labelImage = data.get("label_image");
-  try {
-    if (typeof foodName === "string" || typeof labelImage === "string") {
-      // insert form data into the Comment table
-      await db
-        .insert(Foods)
-        .values({ name: foodName, macrofactor_url: labelImage });
-    }
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error(error.message);
-    }
-  }
-}
+// if (Astro.request.method === "POST") {
+//   // parse form data
+//   const data = await Astro.request.formData();
+//   const foodName = data.get("name");
+//   const labelImage = data.get("label_image");
+//   try {
+//     if (typeof foodName === "string" || typeof labelImage === "string") {
+//       // insert form data into the Comment table
+//       await db
+//         .insert(Foods)
+//         .values({ name: foodName, macrofactor_url: labelImage });
+//     }
+//   } catch (error) {
+//     if (error instanceof Error) {
+//       console.error(error.message);
+//     }
+//   }
+// }
 
-const foods = await db.select().from(Foods);
+// const foods = await db.select().from(Foods);
 ---
 
 <DefaultLayout title="Add new items">
