@@ -1,10 +1,8 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { inArray } from "astro:db";
 import { db, Meals } from "astro:db";
 import { gte, lt, and, eq } from "drizzle-orm";
 
-const currentDate = new Date();
 const startOfCurrentWeek = new Date('2024-03-25')
 const endOfCurrentWeek = new Date('2024-03-31')
 
