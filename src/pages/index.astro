@@ -1,20 +1,86 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
 import { db, Meals } from "astro:db";
-import { gte, lt, and, eq } from "drizzle-orm";
+import { gte, lt, and } from "drizzle-orm";
 
-const startOfCurrentWeek = new Date('2024-03-25')
-const endOfCurrentWeek = new Date('2024-03-31')
+interface Meal {
+  name: string;
+  meal_type: string;
+  day: Date;
+  macrofactor_url?: string | null; // Adjusted to match your structure
+  notes?: string | null; // Adjusted to match your structure
+}
 
-const meals = await db.select().from(Meals).where(and(
-  gte(Meals.day, startOfCurrentWeek),
-  lt(Meals.day, endOfCurrentWeek)
-));
+const startOfCurrentWeek = new Date("2024-03-25");
+const endOfCurrentWeek = new Date("2024-03-31");
+
+const meals = await db
+  .select()
+  .from(Meals)
+  .where(
+    and(gte(Meals.day, startOfCurrentWeek), lt(Meals.day, endOfCurrentWeek))
+  );
 
 const hasData = meals.length > 0;
+
+// Group meals by day
+const mealsByDay: Record<string, Meal[]> = meals.reduce(
+  (acc: Record<string, Meal[]>, meal: Meal) => {
+    const day = meal.day.toISOString().split("T")[0]; // Simplify to date-only string for grouping
+    if (!acc[day]) {
+      acc[day] = [];
+    }
+    acc[day].push(meal);
+    return acc;
+  },
+  {}
+);
 ---
 
 <DefaultLayout title="Home Page">
+  {
+    !hasData ? (
+      <p>No food this week LOLSORRY</p>
+    ) : (
+      Object.entries(mealsByDay).map(([day, dayMeals]) => {
+        const options: Intl.DateTimeFormatOptions = {
+          weekday: "long",
+          month: "long",
+          day: "numeric",
+        };
+        const dayOfWeek = new Date(day);
+        const formattedDayOfWeek = dayOfWeek.toLocaleDateString(
+          "en-US",
+          options
+        );
+        return (
+          <section class="day">
+            <h2>{formattedDayOfWeek}</h2>
+            {dayMeals.map(({ name, meal_type, notes, macrofactor_url }) => (
+              <div class="meal-wrap">
+                <div>
+                  <h3>{meal_type}</h3>
+                  <hr />
+                  <h4>{name}</h4>
+                  <div class="food-list">
+                    <span class="food">
+                      {macrofactor_url && (
+                        <a href={macrofactor_url}>MacroFactor link</a>
+                      )}
+                    </span>
+                    {notes && <p>{notes}</p>}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </section>
+        );
+      })
+    )
+  }
+</DefaultLayout>
+
+<!-- <DefaultLayout title="Home Page">
   {
     !hasData ? (
       <p>No food this week LOLSORRY</p>
@@ -31,27 +97,28 @@ const hasData = meals.length > 0;
           dayOfWeek.getUTCMonth(),
           dayOfWeek.getUTCDate()
         ).toLocaleDateString("en-US", options);
+        console.log(meal_type);
         return (
           <section class="day">
             <h2>{formattedDayOfWeek}</h2>
             <div class="meal-wrap">
-                <div>
-                  <h3>{meal_type}</h3>
-                  <hr />
-                  <h4>{name}</h4>
-                  <div class="food-list">
-                    <span class="food">
-                      {macrofactor_url && (
-                        <a href={macrofactor_url}>MacroFactor link</a>
-                      )}
-                    </span>
-                    {notes && <p>{notes}</p>}
-                  </div>
+              <div>
+                <h3>{meal_type}</h3>
+                <hr />
+                <h4>{name}</h4>
+                <div class="food-list">
+                  <span class="food">
+                    {macrofactor_url && (
+                      <a href={macrofactor_url}>MacroFactor link</a>
+                    )}
+                  </span>
+                  {notes && <p>{notes}</p>}
                 </div>
+              </div>
             </div>
           </section>
         );
       })
     )
   }
-</DefaultLayout>
+</DefaultLayout> -->
