@@ -26,7 +26,7 @@ const meals = await db
   .where(
     and(gte(Meals.day, startOfCurrentWeek), lt(Meals.day, endOfCurrentWeek))
   );
-
+console.log(meals)
 const hasData = meals.length > 0;
 
 // Group meals by day
