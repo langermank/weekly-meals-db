@@ -11,8 +11,16 @@ interface Meal {
   notes?: string | null; // Adjusted to match your structure
 }
 
-const startOfCurrentWeek = new Date("2024-03-25");
-const endOfCurrentWeek = new Date("2024-03-31");
+const now = new Date();
+const currentDayOfWeek = now.getDay();
+const startOfCurrentWeek = new Date(
+  now.setDate(
+    now.getDate() - currentDayOfWeek + (currentDayOfWeek === 0 ? -6 : 1)
+  )
+);
+const endOfCurrentWeek = new Date(
+  now.setDate(now.getDate() - currentDayOfWeek + 7)
+);
 
 const meals = await db
   .select()
