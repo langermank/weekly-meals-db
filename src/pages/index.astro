@@ -24,7 +24,10 @@ const meals = await db
   .select()
   .from(Meals)
   .where(
-    and(gte(Meals.day, startOfCurrentWeek), lt(Meals.day, endOfCurrentWeek))
+    and(
+      gte(Meals.day, new Date(startOfCurrentWeek.toISOString().split("T")[0])),
+      lt(Meals.day, new Date(endOfCurrentWeek.toISOString().split("T")[0]))
+    )
   );
 console.log(meals)
 const hasData = meals.length > 0;
