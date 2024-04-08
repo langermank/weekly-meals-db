@@ -10,24 +10,25 @@ if (Astro.request.method === "POST") {
   const mfUrl = data.get("macrofactor_url");
   const day = data.get("day");
   const notes = data.get("notes");
+  // const dayOfWeek = data.get("dayOfWeek");
   try {
     if (
       typeof mealName === "string" ||
       typeof mealType === "string" ||
       typeof day === "string" ||
       typeof notes === "string" ||
-      typeof mfUrl === "string"
+      typeof mfUrl === "string" ||
+      // typeof dayOfWeek === "string"
     ) {
       // insert form data into the Comment table
-      await db
-        .insert(Meals)
-        .values({
-          name: mealName,
-          macrofactor_url: mfUrl,
-          day: new Date(day),
-          notes,
-          meal_type: mealType,
-        });
+      await db.insert(Meals).values({
+        name: mealName,
+        macrofactor_url: mfUrl,
+        day: new Date(day),
+        notes,
+        meal_type: mealType,
+        // dayOfWeek: dayOfWeek,
+      });
     }
   } catch (error) {
     if (error instanceof Error) {
@@ -40,23 +41,27 @@ if (Astro.request.method === "POST") {
 <DefaultLayout title="Add new items">
   <h2>Add new meal</h2>
   <form method="POST" style="display: grid">
-    <label for="date">Date</label>
-    <input id="date" name="date" type="date" />
+    <label for="day">Date</label>
+    <input id="day" name="day" type="date" />
 
-    <label for="meal-name">Meal name</label>
-    <input id="meal-name" name="name" />
+    <label for="name">Meal name</label>
+    <input id="name" name="name" />
 
-    <label for="meal-type">Meal type</label>
-    <select id="meal-type">
+    <label for="meal_type">Meal type</label>
+    <!-- <input id="meal_type" name="meal_type" /> -->
+    <select id="meal_type" name="meal_type">
       <option value="Lunch">Lunch</option>
       <option value="Dinner">Dinner</option>
     </select>
 
-    <label for="mf-link">MacroFactor link</label>
-    <input id="mf-link" name="mf-link" />
+    <label for="macrofactor_url">MacroFactor link</label>
+    <input id="macrofactor_url" name="macrofactor_url" />
 
-    <label for="meal-notes">Notes</label>
-    <textarea id="meal-notes" name="notes"></textarea>
+    <!-- <label for="dayOfWeek">Day of week</label>
+    <input id="dayOfWeek" name="dayOfWeek" /> -->
+
+    <label for="notes">Notes</label>
+    <textarea id="notes" name="notes"></textarea>
 
     <button type="submit">Submit</button>
   </form>
