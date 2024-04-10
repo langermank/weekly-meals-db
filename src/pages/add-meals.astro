@@ -1,5 +1,6 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
+import { fromZonedTime } from "date-fns-tz";
 import { db, Meals } from "astro:db";
 
 if (Astro.request.method === "POST") {
@@ -10,7 +11,8 @@ if (Astro.request.method === "POST") {
   const mfUrl = data.get("macrofactor_url");
   const day = data.get("day");
   const notes = data.get("notes");
-  // const dayOfWeek = data.get("dayOfWeek");
+  const timezone = "America/Los_Angelos";
+  const utcDate = fromZonedTime(day, timezone);
   try {
     if (
       typeof mealName === "string" ||
@@ -18,16 +20,13 @@ if (Astro.request.method === "POST") {
       typeof day === "string" ||
       typeof notes === "string" ||
       typeof mfUrl === "string"
-      // typeof dayOfWeek === "string"
     ) {
-      // insert form data into the Comment table
       await db.insert(Meals).values({
         name: mealName,
         macrofactor_url: mfUrl,
-        day: new Date(day),
+        day: utcDate,
         notes,
         meal_type: mealType,
-        // dayOfWeek: dayOfWeek,
       });
     }
   } catch (error) {
@@ -48,7 +47,7 @@ if (Astro.request.method === "POST") {
     <input id="name" name="name" />
 
     <label for="meal_type">Meal type</label>
-    <!-- <input id="meal_type" name="meal_type" /> -->
+
     <select id="meal_type" name="meal_type">
       <option value="Lunch">Lunch</option>
       <option value="Dinner">Dinner</option>
@@ -56,9 +55,6 @@ if (Astro.request.method === "POST") {
 
     <label for="macrofactor_url">MacroFactor link</label>
     <input id="macrofactor_url" name="macrofactor_url" />
-
-    <!-- <label for="dayOfWeek">Day of week</label>
-    <input id="dayOfWeek" name="dayOfWeek" /> -->
 
     <label for="notes">Notes</label>
     <textarea id="notes" name="notes"></textarea>
