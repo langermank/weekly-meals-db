@@ -14,12 +14,12 @@
     "@astrojs/db": "^0.8.8",
     "@astrojs/netlify": "^5.2.0",
     "@astrojs/node": "^8.2.5",
-    "astro": "^4.5.8"
+    "astro": "^4.5.8",
+    "date-fns": "^3.6.0",
+    "date-fns-tz": "^3.0.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.5.9",
-    "date-fns": "^3.6.0",
-    "date-fns-tz": "^3.0.0",
     "typescript": "^5.4.2"
   }
 }
