@@ -1,6 +1,6 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { fromZonedTime } from "date-fns-tz";
+// import { fromZonedTime } from "date-fns-tz";
 import { db, Meals } from "astro:db";
 
 if (Astro.request.method === "POST") {
@@ -11,22 +11,28 @@ if (Astro.request.method === "POST") {
   const mfUrl = data.get("macrofactor_url");
   const day = data.get("day");
   const notes = data.get("notes");
-  const timezone = "America/Los_Angelos";
-  const utcDate = fromZonedTime(day, timezone);
+  const week = data.get("week");
+  const dayOfWeek = data.get("dayOfWeek");
+  // const timezone = "America/Los_Angelos";
+  // const utcDate = fromZonedTime(day, timezone);
   try {
     if (
       typeof mealName === "string" ||
       typeof mealType === "string" ||
-      typeof day === "string" ||
+      // typeof day === "string" ||
       typeof notes === "string" ||
-      typeof mfUrl === "string"
+      typeof mfUrl === "string" ||
+      typeof week === "string" ||
+      typeof dayOfWeek === "string"
     ) {
       await db.insert(Meals).values({
         name: mealName,
         macrofactor_url: mfUrl,
-        day: utcDate,
+        // day: day,
         notes,
         meal_type: mealType,
+        week,
+        dayOfWeek,
       });
     }
   } catch (error) {
@@ -40,14 +46,22 @@ if (Astro.request.method === "POST") {
 <DefaultLayout title="Add new items">
   <h2>Add new meal</h2>
   <form method="POST" style="display: grid">
-    <label for="day">Date</label>
-    <input id="day" name="day" type="date" />
+    <label for="week">Week</label>
+    <input id="week" name="week" type="week" />
+
+    <label for="dayOfWeek">Day of week</label>
+    <select id="dayOfWeek" name="dayOfWeek">
+      <option value="Monday">Monday</option>
+      <option value="Tuesday">Tuesday</option>
+      <option value="Wednesday">Wednesday</option>
+      <option value="Thursday">Thursday</option>
+      <option value="Friday">Friday</option>
+    </select>
 
     <label for="name">Meal name</label>
     <input id="name" name="name" />
 
     <label for="meal_type">Meal type</label>
-
     <select id="meal_type" name="meal_type">
       <option value="Lunch">Lunch</option>
       <option value="Dinner">Dinner</option>

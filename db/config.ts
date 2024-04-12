@@ -5,9 +5,11 @@ export const Meals = defineTable({
 		meal_id: column.number({ primaryKey: true }),
 		name: column.text(),
 		meal_type: column.text(),
-		day: column.date(),
+		day: column.date({ optional: true }),
 		macrofactor_url: column.text({ optional: true }),
 		notes: column.text({ optional: true }),
+		week: column.text({ optional: true }),
+		dayOfWeek: column.text({ optional: true })
 	}
 });
 

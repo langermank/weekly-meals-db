@@ -1,45 +1,37 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
 import { db, Meals } from "astro:db";
-import { gte, lt, and } from "drizzle-orm";
+import { like } from "drizzle-orm";
+import { getISOWeek } from "date-fns";
 
 interface Meal {
   name: string;
   meal_type: string;
-  day: Date;
-  macrofactor_url?: string | null; // Adjusted to match your structure
-  notes?: string | null; // Adjusted to match your structure
+  day?: Date;
+  macrofactor_url?: string | null;
+  notes?: string | null;
+  week?: string | null;
+  dayOfWeek?: string | null;
 }
 
 const now = new Date();
-const currentDayOfWeek = now.getDay();
-const startOfCurrentWeek = new Date(
-  now.setDate(now.getDate() - currentDayOfWeek)
-);
-const endOfCurrentWeek = new Date(
-  now.setDate(now.getDate() - currentDayOfWeek + 6)
-);
+const currentWeekNumber = getISOWeek(now).toString();
 
 const meals = await db
   .select()
   .from(Meals)
-  .where(
-    and(
-      gte(Meals.day, new Date(startOfCurrentWeek.toISOString().split("T")[0])),
-      lt(Meals.day, new Date(endOfCurrentWeek.toISOString().split("T")[0]))
-    )
-  );
-console.log(meals)
+  .where(like(Meals.week, `%${currentWeekNumber}`));
+
 const hasData = meals.length > 0;
 
-// Group meals by day
-const mealsByDay: Record<string, Meal[]> = meals.reduce(
+// Group meals by dayOfWeek
+const mealsByDayOfWeek: Record<string, Meal[]> = meals.reduce(
   (acc: Record<string, Meal[]>, meal: Meal) => {
-    const day = meal.day.toISOString().split("T")[0]; // Simplify to date-only string for grouping
-    if (!acc[day]) {
-      acc[day] = [];
+    const dayOfWeek = meal.dayOfWeek;
+    if (!acc[dayOfWeek]) {
+      acc[dayOfWeek] = [];
     }
-    acc[day].push(meal);
+    acc[dayOfWeek].push(meal);
     return acc;
   },
   {}
@@ -51,21 +43,10 @@ const mealsByDay: Record<string, Meal[]> = meals.reduce(
     !hasData ? (
       <p>No food this week LOLSORRY</p>
     ) : (
-      Object.entries(mealsByDay).map(([day, dayMeals]) => {
-        const options: Intl.DateTimeFormatOptions = {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        };
-        const dayOfWeek = new Date(day + "T00:00:00"); // Add time to ensure correct date
-        const formattedDayOfWeek = dayOfWeek.toLocaleDateString(
-          "en-US",
-          options
-        );
-
+      Object.entries(mealsByDayOfWeek).map(([day, dayMeals]) => {
         return (
           <section class="day">
-            <h2>{formattedDayOfWeek}</h2>
+            <h2>{day}</h2>
             {dayMeals.map(({ name, meal_type, notes, macrofactor_url }) => (
               <div class="meal-wrap">
                 <div>
@@ -89,46 +70,3 @@ const mealsByDay: Record<string, Meal[]> = meals.reduce(
     )
   }
 </DefaultLayout>
-
-<!-- <DefaultLayout title="Home Page">
-  {
-    !hasData ? (
-      <p>No food this week LOLSORRY</p>
-    ) : (
-      meals.map(({ name, meal_type, notes, macrofactor_url, day }) => {
-        const options = {
-          weekday: "long",
-          month: "long",
-          day: "numeric",
-        } as any;
-        const dayOfWeek = new Date(day);
-        const formattedDayOfWeek = new Date(
-          dayOfWeek.getUTCFullYear(),
-          dayOfWeek.getUTCMonth(),
-          dayOfWeek.getUTCDate()
-        ).toLocaleDateString("en-US", options);
-        console.log(meal_type);
-        return (
-          <section class="day">
-            <h2>{formattedDayOfWeek}</h2>
-            <div class="meal-wrap">
-              <div>
-                <h3>{meal_type}</h3>
-                <hr />
-                <h4>{name}</h4>
-                <div class="food-list">
-                  <span class="food">
-                    {macrofactor_url && (
-                      <a href={macrofactor_url}>MacroFactor link</a>
-                    )}
-                  </span>
-                  {notes && <p>{notes}</p>}
-                </div>
-              </div>
-            </div>
-          </section>
-        );
-      })
-    )
-  }
-</DefaultLayout> -->
