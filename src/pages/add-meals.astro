@@ -1,11 +1,15 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-import { getISOWeek } from "date-fns";
+import { getISOWeek, addWeeks } from "date-fns";
 import { db, Meals } from "astro:db";
 
 const now = new Date();
 const currentWeekNumber = getISOWeek(now).toString();
 const currentISOWeek = `2024-W${currentWeekNumber}`;
+
+const nextWeek = addWeeks(now, 1);
+const nextWeekNumber = getISOWeek(nextWeek).toString();
+const nextISOWeek = `2024-W${nextWeekNumber}`;
 
 if (Astro.request.method === "POST") {
   // parse form data
@@ -51,7 +55,8 @@ if (Astro.request.method === "POST") {
     <label for="week">Week</label>
     <!-- <input id="week" name="week" type="week" /> -->
     <select id="week" name="week">
-      <option value={currentISOWeek}>{currentISOWeek}</option>
+      <option value={currentISOWeek}>This week</option>
+      <option value={nextISOWeek}>Next week</option>
     </select>
 
     <label for="dayOfWeek">Day of week</label>
