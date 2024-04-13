@@ -1,7 +1,11 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
-// import { fromZonedTime } from "date-fns-tz";
+import { getISOWeek } from "date-fns";
 import { db, Meals } from "astro:db";
+
+const now = new Date();
+const currentWeekNumber = getISOWeek(now).toString();
+const currentISOWeek = `2024-W${currentWeekNumber}`;
 
 if (Astro.request.method === "POST") {
   // parse form data
@@ -13,8 +17,6 @@ if (Astro.request.method === "POST") {
   const notes = data.get("notes");
   const week = data.get("week");
   const dayOfWeek = data.get("dayOfWeek");
-  // const timezone = "America/Los_Angelos";
-  // const utcDate = fromZonedTime(day, timezone);
   try {
     if (
       typeof mealName === "string" ||
@@ -47,7 +49,10 @@ if (Astro.request.method === "POST") {
   <h2>Add new meal</h2>
   <form method="POST" style="display: grid">
     <label for="week">Week</label>
-    <input id="week" name="week" type="week" />
+    <!-- <input id="week" name="week" type="week" /> -->
+    <select id="week" name="week">
+      <option value={currentISOWeek}>{currentISOWeek}</option>
+    </select>
 
     <label for="dayOfWeek">Day of week</label>
     <select id="dayOfWeek" name="dayOfWeek">
