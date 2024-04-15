@@ -83,6 +83,7 @@ button {
   color: var(--button-fgColor);
   box-shadow: 0px 1px 0px 0px var(--button-borderColor-rest);
   border-color: var(--button-borderColor-rest);
+  font-weight: 600;
 
   &:hover {
     cursor: pointer;
@@ -113,39 +114,50 @@ label {
 
 form {
   display: grid;
-  gap: var(--base-size-12);
+  gap: var(--base-size-20);
 }
 
 form > div {
   display: grid;
-  gap: var(--base-size-4);
+  gap: var(--base-size-8);
+}
+
+form > button {
+  margin-block-start: var(--base-size-12);
 }
 
 /* typography */
 
 h1 {
   font-size: var(--base-size-28);
+  font-weight: 600;
 }
 
 h2 {
   font-size: var(--base-size-24);
   margin-block-end: var(--base-size-16);
+  font-weight: 600;
+
 }
 
 h3 {
   font-size: var(--base-size-20);
   margin-block-end: var(--base-size-8);
+  font-weight: 600;
+  /* color: var(--fgColor-accent); */
 }
 
 h4 {
   font-size: var(--text-body-size-large);
   margin-block-end: var(--base-size-4);
-  font-weight: 600;
+  line-height: 1.2;
+  font-weight: 500;
+
 }
 
 :where(hr) {
   border: none;
-  border-top: 4px dotted var(--red-4);
+  border-top: 4px dotted var(--red-3);
   width: 100%;
   margin: 0;
 
