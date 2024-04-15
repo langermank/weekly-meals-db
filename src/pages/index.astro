@@ -1,7 +1,7 @@
 ---
 import DefaultLayout from "../layouts/DefaultLayout.astro";
 import { db, Meals } from "astro:db";
-import { like } from "drizzle-orm";
+import { like, or } from "drizzle-orm";
 import { getISOWeek } from "date-fns";
 
 interface Meal {
@@ -16,11 +16,19 @@ interface Meal {
 
 const now = new Date();
 const currentWeekNumber = getISOWeek(now).toString();
+const nextWeekNumber = getISOWeek(now) + 1;
+const nextWeekNumberString = nextWeekNumber.toString();
+console.log(nextWeekNumber);
 
 const meals = await db
   .select()
   .from(Meals)
-  .where(like(Meals.week, `%${currentWeekNumber}`));
+  .where(
+    or(
+      like(Meals.week, `%${currentWeekNumber}`),
+      like(Meals.week, `%${nextWeekNumberString}`)
+    )
+  );
 
 const hasData = meals.length > 0;
 
@@ -43,30 +51,31 @@ const mealsByDayOfWeek: Record<string, Meal[]> = meals.reduce(
     !hasData ? (
       <p>No food this week LOLSORRY</p>
     ) : (
-      Object.entries(mealsByDayOfWeek).map(([day, dayMeals]) => {
-        return (
-          <section class="day">
-            <h2>{day}</h2>
-            {dayMeals.map(({ name, meal_type, notes, macrofactor_url }) => (
-              <div class="meal-wrap">
-                <div>
-                  <h3>{meal_type}</h3>
-                  <hr />
-                  <h4>{name}</h4>
-                  <div class="food-list">
-                    <span class="food">
+      <>
+        <h1>This week's menu</h1>
+        {Object.entries(mealsByDayOfWeek).map(([day, dayMeals]) => {
+          return (
+            <section class="day">
+              <h2>{day}</h2>
+              <div class="meals">
+                {dayMeals.map(({ name, meal_type, notes, macrofactor_url }) => (
+                  <div>
+                    <h3>{meal_type}</h3>
+                    <h4>{name}</h4>
+                    <div class="food-list">
                       {macrofactor_url && (
                         <a href={macrofactor_url}>MacroFactor link</a>
                       )}
-                    </span>
-                    {notes && <p>{notes}</p>}
+                      {notes && <p>{notes}</p>}
+                    </div>
                   </div>
-                </div>
+                ))}
               </div>
-            ))}
-          </section>
-        );
-      })
+            </section>
+            <hr />
+          );
+        })}
+      </>
     )
   }
 </DefaultLayout>
